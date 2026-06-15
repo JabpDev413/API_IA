@@ -2,6 +2,7 @@ package jabpDev.apiIA.service;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.ai.embedding.Embedding;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingResponse;
@@ -19,27 +20,36 @@ public class EmbeddingService {
 
     private final RestClient restClient = RestClient.create();
 
-    @Value("${HUGGINGFACE_API_KEY:}")
+    @Getter
+    @Value("${spring.ai.huggingface.embeddings.api-key}")
     private String hfApiKey;
 
     public List<Double> gerarEmbedding(String texto) {
 
-        // 1. Usamos o modelo público e gratuito da HF (ótimo para português)
+        // Estrutura oficial da API da Cohere V1
         Map<String, Object> request = Map.of(
-                "inputs", texto
+                "texts", List.of(texto), // Ela aceita uma lista de textos
+                "model", "embed-multilingual-v3.0", // Modelo perfeito para Português
+                "input_type", "search_query" // Avisa a IA que isso é para busca semântica
         );
 
         try {
-            // 2. Fazemos o POST direto para os servidores da Hugging Face
-            List response = restClient.post()
-                    .uri("https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2")
-                    .header("Authorization", "Bearer " + hfApiKey) // Envia o token hf_...
+            // Rota oficial global da Cohere (super estável no Render)
+            Map response = restClient.post()
+                    .uri("https://api.cohere.com/v1/embed")
+                    .header("Authorization", "Bearer " + hfApiKey.trim())
+                    .header("Content-Type", "application/json")
                     .body(request)
                     .retrieve()
-                    .body(List.class);
+                    .body(Map.class);
 
-            // A Hugging Face retorna direto uma lista de números (o vetor)
-            return (List<Double>) response;
+            // A Cohere retorna uma estrutura contendo uma lista dentro de outra: "embeddings": [[0.1, 0.2, ...]]
+            List<List<Object>> embeddingsList = (List<List<Object>>) response.get("embeddings");
+
+            // Pegamos a primeira lista de números e convertemos para Double
+            return embeddingsList.get(0).stream()
+                    .map(num -> ((Number) num).doubleValue())
+                    .toList();
 
         } catch (Exception e) {
             System.err.println("Erro ao chamar API de Embeddings da Hugging Face: " + e.getMessage());
