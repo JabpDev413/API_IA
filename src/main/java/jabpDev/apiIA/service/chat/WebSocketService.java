@@ -43,10 +43,10 @@ public class WebSocketService {
             webSocketSession.sendMessage(new TextMessage(json));
         } catch (IOException e) {
             System.err.println("sendMessageIA 1: " + e.getMessage());
-            throw new ErrorException("Não foi possível conversar com a IA");
+            throw new ErrorException(e.getMessage());
         } catch (Exception e) {
              System.err.println("sendMessageIA 2: " + e.getMessage());
-            throw new ErrorException("Não foi possível conversar com a IA");
+            throw new ErrorException(e.getMessage());
         }
     }
 }
