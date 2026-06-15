@@ -14,6 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
+                        .allowedOrigins("https://fron-ia.vercel.app")
                         .allowedOrigins("*")
                         .allowedMethods("*");
 
