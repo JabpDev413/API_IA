@@ -17,7 +17,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry){
         System.err.println("webs registrou");
         webSocketHandlerRegistry.addHandler(webSocketController,"/messages")
-//                .setAllowedOrigins("*")
+                .setAllowedOrigins("*")
                 .setAllowedOriginPatterns("*");
     }
 }
