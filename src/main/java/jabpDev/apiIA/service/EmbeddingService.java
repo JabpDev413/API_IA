@@ -20,9 +20,8 @@ public class EmbeddingService {
 
     private final RestClient restClient = RestClient.create();
 
-    @Getter
-    @Value("${spring.ai.huggingface.embeddings.api-key}")
-    private String hfApiKey;
+    @Value("${cohere.api.key}")
+    private String cohereApiKey;
 
     public List<Double> gerarEmbedding(String texto) {
 
@@ -37,7 +36,7 @@ public class EmbeddingService {
             // Rota oficial global da Cohere (super estável no Render)
             Map response = restClient.post()
                     .uri("https://api.cohere.com/v1/embed")
-                    .header("Authorization", "Bearer " + hfApiKey.trim())
+                    .header("Authorization", "Bearer " + cohereApiKey.trim())
                     .header("Content-Type", "application/json")
                     .body(request)
                     .retrieve()
